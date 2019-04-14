@@ -12,7 +12,7 @@ Project 3 of Udacity's Front-End Nanodegree. A Classic 2D arcade game.PLAY
 
 ## Installation
 
-[PLAY HERE] (https://subhaduraisamy.github.io/fend-arcade-game/) OR Download/clone to computer, open with favorite text editor, and play.
+[PLAY HERE](https://subhaduraisamy.github.io/fend-arcade-game/) OR Download/clone to computer, open with favorite text editor, and play.
 
 ## How To Play
 
