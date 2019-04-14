@@ -1,5 +1,3 @@
-/*jshint esversion: 6 */
-
 /* Engine.js
  * This file provides the game loop functionality (update entities and render),
  * draws the initial game board on the screen, and then calls the update and
@@ -11,23 +9,20 @@
  * drawn but that is not the case. What's really happening is the entire "scene"
  * is being drawn over and over, presenting the illusion of animation.
  *
- * This engine makes the canvas' context (ctx) object globally available to make
+ * This engine makes the canvas' context (ctx) object globally available to make 
  * writing app.js a little simpler to work with.
  */
 
-(function(global) {
-    'use strict';
+var Engine = (function(global) {
     /* Predefine the variables we'll be using within this scope,
      * create the canvas element, grab the 2D context for that canvas
      * set the canvas elements height/width and add it to the DOM.
      */
-    const doc = global.document,
+    var doc = global.document,
         win = global.window,
         canvas = doc.createElement('canvas'),
-        ctx = canvas.getContext('2d');
-
-    let lastTime,
-        frameId;
+        ctx = canvas.getContext('2d'),
+        lastTime;
 
     canvas.width = 505;
     canvas.height = 606;
@@ -43,7 +38,7 @@
          * would be the same for everyone (regardless of how fast their
          * computer is) - hurray time!
          */
-        const now = Date.now(),
+        var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
 
         /* Call our update/render functions, pass along the time delta to
@@ -60,13 +55,7 @@
         /* Use the browser's requestAnimationFrame function to call this
          * function again as soon as the browser is able to draw another frame.
          */
-        frameId = win.requestAnimationFrame(main);
-    
-        // If player won -> stop animation frame and call victory
-        if (game.board.paintNextFrame === false) {
-            global.cancelAnimationFrame(frameId);
-            game.board.toggleVictoryModal();
-        }
+        win.requestAnimationFrame(main);
     }
 
     /* This function does some initial setup that should only occur once,
@@ -90,20 +79,25 @@
      */
     function update(dt) {
         updateEntities(dt);
+        // checkCollisions();
     }
 
     /* This is called by the update function and loops through all of the
      * objects within your allEnemies array as defined in app.js and calls
      * their update() methods. It will then call the update function for your
-     * game.player object. These update methods should focus purely on updating
+     * player object. These update methods should focus purely on updating
      * the data/properties related to the object. Do your drawing in your
      * render methods.
      */
     function updateEntities(dt) {
-        game.allEnemies.forEach(function(enemy) {
+        allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
-        game.player.update(frameId);
+        player.update();
+        winningblocks.forEach(function(Winblock) {
+            Winblock.update();
+        });
+        points.update();
     }
 
     /* This function initially draws the "game level", it will then call
@@ -116,7 +110,7 @@
         /* This array holds the relative URL to the image used
          * for that particular row of the game level.
          */
-        const rowImages = [
+        var rowImages = [
                 'images/water-block.png',   // Top row is water
                 'images/stone-block.png',   // Row 1 of 3 of stone
                 'images/stone-block.png',   // Row 2 of 3 of stone
@@ -125,13 +119,11 @@
                 'images/grass-block.png'    // Row 2 of 2 of grass
             ],
             numRows = 6,
-            numCols = 5;
-
-        let row,
-            col;
-
+            numCols = 5,
+            row, col;
+        
         // Before drawing, clear existing canvas
-        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.clearRect(0,0,canvas.width,canvas.height)
 
         /* Loop through the number of rows and columns we've defined above
          * and, using the rowImages array, draw the correct image for that
@@ -161,11 +153,21 @@
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
          */
-        game.allEnemies.forEach(function(enemy) {
+        allEnemies.forEach(function(enemy) {
             enemy.render();
         });
 
-        game.player.render(frameId);
+        player.render();
+
+        alllives.forEach(function(lives){
+            lives.render();
+        });
+
+        allKeys.forEach(function(key) {
+            key.render();
+        });
+
+        points.render();
     }
 
     /* This function does nothing but it could have been a good place to
@@ -173,18 +175,7 @@
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        const modal = document.querySelector('.modal');
-
-        // If modal is active -> turn off
-        if (!modal.classList.contains('hide')) {
-            game.board.toggleVictoryModal();
-        }
-
-        // Reset player pos back to start pos
-        game.player.resetHero();
-
-        // Allow animation frame to start again
-        game.board.paintNextFrame = true;
+        // noop
     }
 
     /* Go ahead and load all of the images we know we're going to need to
@@ -196,7 +187,12 @@
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/char-boy.png',
+        'images/char-horn-girl.png',
+        'images/Heart.png',
+        'images/Star.png',
+        'images/Gem Green.png'
+
     ]);
     Resources.onReady(init);
 
@@ -205,8 +201,4 @@
      * from within their app.js files.
      */
     global.ctx = ctx;
-
-    // Call new game on replay
-    document.querySelector('#replay').addEventListener('click', ()=> { init();});
-    
 })(this);

@@ -4,26 +4,48 @@
     <meta charset="UTF-8">
     <title>Effective JavaScript: Frogger</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Gloria+Hallelujah" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Alegreya" rel="stylesheet">
 </head>
 <body>
-    <h3>Arcade Game</h3>
-        <p>
-            You can play with the arrows keys left/right/up/down respectively.
-        </p>
-    <div class="modal hide">
-        <div class="modal__content">
-            <div class="modal__header">
-                <h1>You WIN!</h1>
-            </div>
-            <div class="modal__body">
-                <p>Wow, your pretty good at this game. Want to play again?</p>
-            </div>
-            <div class="modal__buttons">
-                <button id="replay" class="modal__button">Play Again</button>
-                
-            </div>
-        </div>
+    <!-- game header -->
+    <div class="header">
+        <h1>ARCADE GAME</h1>
+        <h3>Use arrow key to move left,right,up and down</h3>
     </div>
+
+    <!-- dark overlay -->
+    <div class="overlay"></div>
+
+    <!-- modal for starting the game -->
+    <div class="start-game">
+        <h1>Welcome to Arcade game</h1>
+        <h3>Instructions</h3>
+        <p>Use your arrow keys to move the player: up, down, left, right. Ensure your player doesn't collide with the bugs. You loose 50pts on any collison.</p>
+        <h3>Lets start!!</h3>
+        <p>Try to get to the water blocks at the top and gain 5 keys to win game.</p>
+        <h4>You have 3 lives. Good luck!</h4>
+        <button onclick="startGame()"> GO!! </button>
+    </div>
+
+    <!-- modal for when player looses all lives -->
+    <div class="game-over">
+        <h1>Game Over</h1>
+        <p> Welldone!</p>
+        <p>You're here because you lost all 3 lives</p>
+        <h3>Play again to win the game</h3>
+        <button onclick="resetGame()"> Play Again </button>
+    </div>
+
+    <!-- Modal for when player wins the game -->
+    <div class="winner">
+        <h1>You're a Winner! 🎉 🎉 </h1>
+        <p>Yaay! Welldone! You just won!</p>
+        <h3>Play again to win again</h3>
+        <button onclick="resetGame()"> Play Again </button>
+    </div>
+    
+    <!-- all javascript -->
     <script src="js/resources.js"></script>
     <script src="js/app.js"></script>
     <script src="js/engine.js"></script>

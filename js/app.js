@@ -1,247 +1,230 @@
-/*jshint esversion: 6 */
-
-// IIFE call with global window object
-(function(global) {
-    'use strict';
-
-    // Escape global space by storing game in object
-    global.game = {};
     
-    // Game content and logic
-    class Board {
-        constructor() {
-            this.TILE_WIDTH = 101;
-            this.TILE_HEIGHT = 83;
-            this.LEFT_WALL = 0;
-            this.RIGHT_WALL = 404;
-            this.TOP_WALL = 53;
-            this.BOTTOM_WALL = 385;
-            this.OFFSCREEN_TILE = this.LEFT_WALL - this.TILE_WIDTH;
-            this.heroStartTileX = this.TILE_WIDTH * 2;
-            this.heroStartTileY = this.TOP_WALL + (this.TILE_HEIGHT * 4);
+// declaring important variable of different modales
+let modal = document.querySelector(".start-game");
+let overlay = document.querySelector(".overlay");
+let gameover = document.querySelector(".game-over");
+let winnerModal = document.querySelector(".winner");
 
-            // Enemy parameters
-            this.enemies = [
-                {
-                    x: this.OFFSCREEN_TILE,
-                    y: this.TOP_WALL
-                }, 
-                {
-                    x: this.OFFSCREEN_TILE,
-                    y: this.TOP_WALL + this.TILE_HEIGHT,
-                    speed: 400
-                }, 
-                {
-                    x: this.OFFSCREEN_TILE - (this.TILE_WIDTH * 1.5),
-                    y: this.TOP_WALL + this.TILE_HEIGHT,
-                    speed: 400
-                },
-                {
-                    x: this.OFFSCREEN_TILE - (this.TILE_WIDTH * 2),
-                    y: this.TOP_WALL + (this.TILE_HEIGHT * 2),
-                    speed: 150
-                }
-            ];
+// points and player lives
+var playerPoints = 0;
+var playerLives = 3;
 
-            // Controls painting next animation frame
-            this.paintNextFrame = true;
+//this function starts the game
+function startGame(){
+    modal.classList.add("hide");
+    overlay.classList.add("hide");
+
+    // Initial figures
+    playerPoints = 0;
+}
+
+//this is run when player looses all lives
+function gameOver(){
+    overlay.classList.add("show");
+    gameover.classList.add("show");
+}
+
+// this function resets the game
+function resetGame(){
+    window.location.reload(true);
+}
+
+// funtion runs to check lives 
+function checkLives(){
+    if (alllives.length === 0){    
+        gameOver()
+    }
+}
+
+// function for when player gets all 5 keys and wins game
+function youWin(){
+    overlay.classList.add("show");
+    winnerModal.classList.add("show");
+}
+
+// Enemies class 
+var Enemy = function(x, y, speed = 1) {
+    // Variables applied to each of our instances go here,
+    this.x = x;
+    this.y = y;
+    this.location = ( x, y);
+    this.speed = speed;
+
+    // The image/sprite for our enemies, this uses a helper we've provided to easily load images
+    this.sprite = 'images/enemy-bug.png';
+};
+
+// To Update the enemy's position, required method for game-Parameter: dt, a time delta between ticks
+Enemy.prototype.update = function(dt) {
+    // You should multiply any movement by the dt parameter
+    this.x += 100 * this.speed * dt;
+    
+    // collison detection
+    if (parseInt(this.x)+ 100 >= playerX && parseInt(this.x) <= playerX + 40 && this.y === playerY){
+        console.log("a collision just occured your player diessss");  
+        player.reset();
+        alllives.pop();
+        playerLives -= 1
+        if (playerPoints >= 50){
+            playerPoints -= 50;
         }
+    }
+    checkLives();
+};
 
-        initBoard() {
-            this.initEnemies();
-            this.initPlayer();
-            this.initKeys();
-        }
+// Draw the enemy on the screen, required method for game
+Enemy.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
 
-        // Create instances of all enemies
-        initEnemies() {
-            game.allEnemies = [];
-            for (let i = 0; i <= 3; i++) {
-                const newEnemy = new Enemy(this.enemies[i].x, this.enemies[i].y, this.enemies[i].speed);
-                game.allEnemies.push(newEnemy);
-            }
-        }
 
-        // Create player instance
-        initPlayer() {
-            game.player = new Hero(this.heroStartTileX, this.heroStartTileY, 'images/char-boy.png');
-        }
+// player class
+var Player = function (x, y){
+    this.x = x;
+    this.y = y;
+    this.sprite = 'images/char-horn-girl.png';
+};
+var playerX
+var playerY
+
+Player.prototype.update = function(){
+    playerX = this.x;
+    playerY = this.y;
+}
+
+// this draws player on canvas
+Player.prototype.render = function(){
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
+
+// method to handleInput() 
+Player.prototype.handleInput = function(pressedKeys){
+    if (pressedKeys === 'left' && this.x > 33){
+        this.x -= 100;
+    }
+    else if (pressedKeys === 'up'&& this.y > 18){
+        this.y -= 80;
+    }
+    else if (pressedKeys === 'right' && this.x < 400){
+        this.x += 100
+    }
+    else if (pressedKeys === 'down' && this.y < 380){
+        this.y += 80
+    }
+};
+// to reset player to original position
+Player.prototype.reset = function(){
+    this.x = 200;
+    this.y = 380;
+}
+
+// Lives class
+var Lives = function(x, y){
+    this.x = x;
+    this.y = y
+    this.sprite = 'images/Heart.png';
+};
+// render method for Lives class
+Lives.prototype.render = function(){
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y, 28, 42);
+}
+
+// Key class
+var Key = function(x, y){
+    this.x = x;
+    this.y = y;
+    this.sprite = 'images/Gem Green.png';
+}
+// draws keys on the canvas
+Key.prototype.render = function(){
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y, 90, 130);
+}
+
+
+//winning block class to figure out when a player wins
+var Winblock = function(x, y){
+    this.x = x;
+    this.y = y
+}
+
+var winblockX
+var winblockY
+Winblock.prototype.update = function(){
+    winblockX = this.x;
+    winblockY = this.y;
+
+    if((-Math.abs(winblockY)) == playerY && this.x == playerX){
+        allKeys.push(new Key(winblockX, winblockY));
+        playerPoints += 100;
+        player.reset();
+    }
+    if (allKeys.length == 5){
+        console.log("You win Game");
+        youWin();
+    } 
+}
+
+// class to give player points
+var Points = function(x, y, score){
+    this.x = x;
+    this.y = y;
+    this.score = "Your points: "+ playerPoints
+}
+Points.prototype.render = function(){
+    ctx.font = '20px serif';
+    ctx.fillText(this.score, this.x, this.y);
+}
+Points.prototype.update = function(){
+    this.score = "Your points: "+ playerPoints
+}
+
+// possible X-axis positions on board
+var columns = [ -5, -100, -200, -300, -400];
+var enemyX;
+
+// possible Y-axis positions on board
+var rows = [ 60, 140, 220];
+var enemyY;
+
+var enemySpeed;
+
+// this is to randomly pick locations for bugs
+setInterval(function instances(){
+    enemyX = columns[Math.floor(Math.random() * 5)],
+    enemyY = rows[Math.floor(Math.random() * 3)],
+    enemySpeed = Math.floor(Math.random() * 15),
+    allEnemies.push(new Enemy(enemyX, enemyY, enemySpeed)); 
+},500)
+
+
+
+// Now instantiate your objects.
+// allEnemies- array of all enemy objects 
+var allEnemies = [ new Enemy(-8, 60, 3), new Enemy(0, 140, 10), new Enemy(-5, 300, 15)];
+
+// Place the player object in a variable called player
+var player = new Player( 200, 380);
+
+// instantiate lives
+var alllives = [ new Lives(10, 540), new Lives(40, 540), new Lives(70, 540)];
+
+var allKeys = [ ];
+
+// instantiate winning blocks
+var winningblocks = [ new Winblock(0, 20), new Winblock(100, 20), new Winblock(200, 20), new Winblock(300, 20), new Winblock(400, 20)];
+
+var points = new Points(350, 570)
  
-        // This listens for key presses and sends the keys to your
-        // Player.handleInput() method. You don't need to modify this.
-        initKeys() {
-            document.addEventListener('keyup', function(e) {
-                var allowedKeys = {
-                    // Arrows
-                    37: 'left',
-                    38: 'up',
-                    39: 'right',
-                    40: 'down',
 
-                    // WASD
-                    65: 'left',
-                    87: 'up',
-                    68: 'right',
-                    83: 'down'
-                };
-                game.player.handleInput(allowedKeys[e.keyCode]);
-            });
-        } 
+// This listens for key presses and sends the keys to your
+// Player.handleInput() method. You don't need to modify this.
+document.addEventListener('keyup', function(e) {
+    var allowedKeys = {
+        37: 'left',
+        38: 'up',
+        39: 'right',
+        40: 'down'
+    };
 
-        // Handle victory modal's on/off state
-       toggleVictoryModal() {
-            const modal = document.querySelector('.modal');
-            modal.classList.toggle('hide');
-        } 
-    }
-
-    /**
-     * Player character
-     * 
-     * @param  {int} x - x coord position
-     * @param  {int} y - y coord position
-     * @param  {string} sprite - Player sprite
-     */
-    class Hero {
-        constructor(x, y, sprite) {
-            this.startX = x;
-            this.startY = y;
-            this.x = this.startX;
-            this.y = this.startY;
-            this.sprite = sprite;
-        }
-
-        // Player position logic
-        update() {
-            checkCollision();
-            checkVictory();
-
-            // Checks if player collides with enemy
-            function checkCollision() {
-                game.allEnemies.forEach(enemy => {
-                    if (collision(enemy)) {
-                        game.player.resetHero();
-                    }
-                });
-
-                /**
-                 * Return boolean on whether a game.player and enemy collision occurred
-                 * 
-                 * @param  {object} enemy - Enemy object
-                 */
-                function collision(enemy) {
-                    const COLLISION_BUFFER = 2; // Reduce hitbox size
-                    const enemyLeft = enemy.x;
-                    const enemyRight = enemy.x + (game.board.TILE_WIDTH / COLLISION_BUFFER);
-                    const playerLeft = game.player.x;
-                    const playerRight = game.player.x + (game.board.TILE_WIDTH / COLLISION_BUFFER);
-                    return ((enemyRight > playerLeft &&
-                        enemyLeft < playerRight) &&
-                        (enemy.y === game.player.y));
-                }
-            }
-
-            // Check if player reached river
-            function checkVictory() {
-                if (victory()) {
-                    game.board.paintNextFrame = false;
-                }
-
-                // Check if player reached the water
-                function victory() {              
-                    if (game.player.y === game.board.TOP_WALL) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        // Render hero
-        render() {
-            ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-        }
-    
-        /**
-         * Hero movement
-         * 
-         * @param  {string} key - String of direction to change
-         */
-        handleInput(key) {
-            switch (key) {
-                case 'left':
-                    if (this.x > game.board.LEFT_WALL) {
-                        this.x -= game.board.TILE_WIDTH;
-                    }
-                    break;
-                case 'right':
-                    if (this.x < game.board.RIGHT_WALL) {
-                        this.x += game.board.TILE_WIDTH;
-                    }
-                    break;
-                case 'up':
-                if (this.y > game.board.TOP_WALL) {
-                        this.y -= game.board.TILE_HEIGHT;
-                    }
-                    break;
-                case 'down':
-                    if (this.y < game.board.BOTTOM_WALL) {
-                        this.y += game.board.TILE_HEIGHT;
-                    }
-                    break;
-            }
-        }
-
-        // Reset hero back to starting coords
-        resetHero() {
-            this.x = this.startX;
-            this.y = this.startY;
-        }
-    }
-
-    /**
-     * Enemies our player must avoid
-     * 
-     * @param  {int} x - x coord position
-     * @param  {int} y - y coord position
-     * @param  {int} speed=200 - Movement speed
-     */
-    class Enemy {
-        constructor(x, y, speed = 200) {
-            this.x = x;
-            this.y = y;
-            this.speed = speed;
-            this.sprite = 'images/enemy-bug.png';
-
-            // Initial spawn location
-            this.startingX = x;
-            this.startingY = y;
-        }
-  
-        /**
-         * Enemy position logic
-         * 
-         * @param  {int} dt - DeltaTime for independent framerate 
-         */
-        update(dt) {
-            if (this.x < game.board.RIGHT_WALL - game.board.OFFSCREEN_TILE) {
-                // You should multiply any movement by the dt parameter
-                // which will ensure the game runs at the same speed for
-                // all computers.
-                this.x += this.speed * dt;
-            }
-            else {
-                this.x = game.board.OFFSCREEN_TILE;
-            }
-        } 
-     
-        // Draw the enemy on the screen, required method for game
-        render() {
-            ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-        } 
-    }
-
-    game.board = new Board();
-    game.board.initBoard();
-
-})(window);
-
+    player.handleInput(allowedKeys[e.keyCode]);
+});
