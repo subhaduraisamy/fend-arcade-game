@@ -3,7 +3,7 @@ frontend-nanodegree-arcade-game
 
 ## What is this? 
 This is an arcade game which is one of my FEND projects
-![Screenshot](/images/arcade game.png)
+![Screenshot](https://github.com/subhaduraisamy/fend-arcade-game/blob/master/images/arcade%20game.png)
 
 ## How to Play?
 
